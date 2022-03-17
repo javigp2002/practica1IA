@@ -14,7 +14,7 @@ class ComportamientoJugador : public Comportamiento{
       brujula = 0;
       ultimaAccion = actIDLE;
       girar_derecha = false;
-      bien_situado = false;
+      bien_situado = true;
 
     }
 
@@ -23,6 +23,7 @@ class ComportamientoJugador : public Comportamiento{
 
     Action think(Sensores sensores);
     int interact(Action accion, int valor);
+    void actualizarVistaMapa(Sensores sensores);
 
   private:
     int fil, col, brujula;

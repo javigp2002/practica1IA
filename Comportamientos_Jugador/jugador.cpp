@@ -4,8 +4,47 @@ using namespace std;
 
 
 
+void ComportamientoJugador::actualizarVistaMapa(Sensores sensores){
+	int new_fil = fil, new_col = col;
+	int contador = 1, contador_ant = 0;
+
+	mapaResultado[new_fil][new_col] = sensores.terreno[0];
+
+	for (int i = 0; i < 3; i++)
+		{
+			switch (brujula){
+				case 0: new_col--; new_fil--; break;
+				case 1: new_col++; new_fil--; break;
+				case 2: new_col--; new_fil++; break;
+				case 3: new_col--; new_fil--; break;
+			}
+			
+			// se cuenta diferente en sur y oeste (de 3-1, 8-4, 16-9)
+			if (brujula == 2 || brujula == 3){
+				contador = contador_ant + 3+2*i;
+				contador_ant = contador;
+			}
+
+			for (int j = 0; j < 3+2*i; j++) {
+				if (brujula==0 || brujula == 2) // norte,sur -->columnas
+					mapaResultado[new_fil][new_col+j] = sensores.terreno[contador];
+				else // este oeste --> filas
+					mapaResultado[new_fil+j][new_col] = sensores.terreno[contador];
+				
+				
+				if (brujula == 0 || brujula == 1) //norte este
+					contador++;
+				else  // sur oeste
+					contador--;	
+			}
+		}
+}
+
 Action ComportamientoJugador::think(Sensores sensores){
 
+	if (sensores.nivel > 0){
+		bien_situado=false;
+	}
 	Action accion = actIDLE;
 	switch (ultimaAccion)
 	{
@@ -30,12 +69,17 @@ Action ComportamientoJugador::think(Sensores sensores){
 
 	if (sensores.terreno[0] == 'G' and !bien_situado){
 		fil = sensores.posF;
-		col=sensores.posC;
+		col = sensores.posC;
 		bien_situado =true;
 	}
 
 	if (bien_situado){
-		mapaResultado[fil][col] = sensores.terreno[0];
+		
+		fil = sensores.posF;
+		col=sensores.posC;
+		brujula=sensores.sentido;
+		actualizarVistaMapa(sensores);
+		
 	}
 	// dECIDIR LA NUEVA ACIION
 	if ((sensores.terreno[2] == 'T' or sensores.terreno[2] == 'S' 
@@ -83,3 +127,63 @@ Action ComportamientoJugador::think(Sensores sensores){
 int ComportamientoJugador::interact(Action accion, int valor){
   return false;
 }
+
+
+
+
+	
+	// if (brujula == 0){ // NORTE
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil--;
+			
+		
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil][new_col+j] = sensores.terreno[contador];
+	// 			contador++;	
+	// 		}
+	// 	}
+	// } else if (brujula == 1){ // este
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col++;
+	// 		new_fil--;
+			
+		
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil+j][new_col] = sensores.terreno[contador];
+	// 			contador++;	
+	// 		}
+	// 	}
+	// } else if (brujula == 2){ // SUR
+		
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil ++;
+			
+	// 		contador = contador_ant + 3+2*i;
+	// 		contador_ant = contador;
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil][new_col+j] = sensores.terreno[contador];
+	// 			contador--;	
+	// 		}
+	// 	}
+	// } else { // oeste
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil--;
+			
+	// 		contador = contador_ant + 3+2*i;
+	// 		contador_ant = contador;
+
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil+j][new_col] = sensores.terreno[contador];
+	// 			contador--;	
+	// 		}
+	// 	}
+	// }
+	
+
