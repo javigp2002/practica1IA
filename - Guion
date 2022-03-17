@@ -1,0 +1,6 @@
+- Guion
+
+--> despues de intentar copiar el mapa auxiliar de muchas maneras entendiendo como funciona el mapa resultado
+he optado por '?' buscar el numero de esos caracteres y suponer una matriz cuadrada para que recuerde el mapa que ha seguido durante la busqueda a ciegas
+
+--> 
