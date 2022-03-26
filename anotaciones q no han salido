@@ -1,0 +1,122 @@
+anotaciones q no han salido
+
+	// if ((sensores.terreno[2] == 'T' or sensores.terreno[2] == 'S' or sensores.terreno[2] == 'G')
+	// 	 and sensores.superficie[2] == '_' && !mismo_camino) {
+	// 	accion = actFORWARD;
+		
+	// }else if (sensores.terreno[2] == 'K' || sensores.terreno[2] == 'D' || sensores.terreno[2] == 'X'){
+	// 	accion = actFORWARD;
+	// } else if(sensores.terreno[2] == 'A' && bikini || sensores.terreno[2] == 'B' && zapatillas) {
+	// 	accion = actFORWARD;
+
+	// }else if (mismo_camino){
+	// 	if (girar_derecha)
+	// 		girar_derecha = false;
+	// 	else
+	// 		girar_derecha = true;
+		
+	// 	if (rand()%2==0){
+	// 		accion = actTURN_L;
+	// 	} else
+	// 		accion = actTURN_R;
+
+	// } 
+	// else if (!girar_derecha && n_izda < 3){
+		
+	// 	accion = actTURN_L;
+	// 	n_izda++; 
+	// 	n_dcha = 0;
+	// }
+	// else if (n_dcha < 3){
+	// 	accion = actTURN_R;
+	// 	n_izda=0;
+	// 	n_dcha++;
+	// } else{
+	// 	accion = actFORWARD;
+	// 	girar_derecha = false;
+	// }
+		
+
+
+
+		/*
+	cout << "Posicion: fila " << sensores.posF << " columna " << sensores.posC << " ";
+	switch(sensores.sentido){
+		case 0: cout << "Norte" << endl; break;
+		case 1: cout << "Este" << endl; break;
+		case 2: cout << "Sur " << endl; break;
+		case 3: cout << "Oeste" << endl; break;
+	}
+	cout << "Terreno: ";
+	for (int i=0; i<sensores.terreno.size(); i++)
+		cout << sensores.terreno[i];
+	cout << endl;
+
+	cout << "Superficie: ";
+	for (int i=0; i<sensores.superficie.size(); i++)
+		cout << sensores.superficie[i];
+	cout << endl;
+
+	cout << "Colisión: " << sensores.colision << endl;
+	cout << "Reset: " << sensores.reset << endl;
+	cout << "Vida: " << sensores.vida << endl;
+	cout << endl;
+
+	*/
+	// Determinar el efecto de la ultima accion enviada
+	
+
+	
+	// if (brujula == 0){ // NORTE
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil--;
+			
+		
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil][new_col+j] = sensores.terreno[contador];
+	// 			contador++;	
+	// 		}
+	// 	}
+	// } else if (brujula == 1){ // este
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col++;
+	// 		new_fil--;
+			
+		
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil+j][new_col] = sensores.terreno[contador];
+	// 			contador++;	
+	// 		}
+	// 	}
+	// } else if (brujula == 2){ // SUR
+		
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil ++;
+			
+	// 		contador = contador_ant + 3+2*i;
+	// 		contador_ant = contador;
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil][new_col+j] = sensores.terreno[contador];
+	// 			contador--;	
+	// 		}
+	// 	}
+	// } else { // oeste
+	// 	for (int i = 0; i < 3; i++)
+	// 	{
+	// 		new_col--;
+	// 		new_fil--;
+			
+	// 		contador = contador_ant + 3+2*i;
+	// 		contador_ant = contador;
+
+	// 		for (int j = 0; j < 3+2*i; j++) {
+	// 			mapaResultado[new_fil+j][new_col] = sensores.terreno[contador];
+	// 			contador--;	
+	// 		}
+	// 	}
+	// }

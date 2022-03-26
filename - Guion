@@ -3,4 +3,77 @@
 --> despues de intentar copiar el mapa auxiliar de muchas maneras entendiendo como funciona el mapa resultado
 he optado por '?' buscar el numero de esos caracteres y suponer una matriz cuadrada para que recuerde el mapa que ha seguido durante la busqueda a ciegas
 
---> 
+--> si creo un stack entonces puedo asegurarme que no vuelvo atras si no hay otra opcion pero no me aseguro que quede despues en un bucle, quizas sea mejor un nuevo mapa
+
+--> seguir sentido horario, si sigo el mismo camino seguir sentido antihorario7
+
+--> BOSQUE 'B' --> girar sin zapatillas permitido
+--> TIERRA --> GIRAR
+--> AGUA --> evitar casi a toda cosa
+ --> RETO --> MOVERME
+
+
+
+ --> MEJORAR MOVIMIENTO
+
+
+ --> SIN NADA
+  - Buscar bikini o zapatillas o cargar --> en ese orden
+  		- cuando este buscando creo un mapa de 3x5 donde mi robot solo se mueve por ellos
+  - Seguir recto si es posible (no es ni muro ni bosuqe ni agua)
+  - girar a la derecha si (no me he ecnontrado con 2 agua/bosque seguidos o hay un muro)
+  - girar a la izquierda si (accion anterior era moverse)
+  - moverse
+
+if (hay_bikini || hay_zapatillas){
+		
+	} else if (iter_mismo>=3 ) {
+		if (sensores.terreno[2] != 'M' && mapaRecorrido[fil_aux][col_aux] != '?'){
+			accion = actFORWARD;
+		} else if (n_izda < 5) {
+			accion=actTURN_L;
+			n_izda++;
+		} else if (sensores.terreno[2] == 'M'){
+			accion = actTURN_R;
+			girar_derecha = false;
+			n_izda=0;
+		}
+		else	
+			accion = actFORWARD;
+		iter_bucle++;
+		if (iter_bucle>= NUM_ITER_SALIDA_BUCLE){
+			iter_mismo = 0;
+			iter_bucle=0;
+			ResetMapa(mapaRecorrido);
+		}
+	}else{
+
+		if ((sensores.terreno[2] == 'T' or sensores.terreno[2] == 'S' or sensores.terreno[2] == 'G' || sensores.terreno[2] == 'X')
+		 and sensores.superficie[2] == '_' && !mismo_camino) {
+			accion = actFORWARD;
+			
+		} else if(mismo_camino || !cambio_180) {
+		
+			accion = actTURN_L;
+			cambio_180=true;
+		} else if (sensores.terreno[2] != 'M'){
+			accion = actFORWARD;
+			cambio_180=false;
+		}else{	
+			accion = actTURN_R;
+			cambio_180=false;
+		}
+
+	}
+
+	------------------------------------------------
+	if ((sensores.terreno[2] != 'M'&&sensores.terreno[2] != 'B' && sensores.terreno[2] != 'A')
+	 		    && sensores.terreno[2] != '_') {
+			accion = actFORWARD;
+		}else if (ultimo_giro == 'M' && ultimo_giro == sensores.terreno[2] ){
+			accion =actTURN_R;
+			ultimo_giro = sensores.terreno[2];
+		} else {
+			buscaSalida = true;
+			accion = actIDLE;
+		}
