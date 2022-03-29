@@ -317,6 +317,17 @@ bool ComportamientoJugador::esInaccesible (Sensores sensores, int num_sensor){
 Action ComportamientoJugador::accionSinNada(Sensores sensores){
 	Action accion = actIDLE;
 	
+	if (sensores.terreno[0] == 'X') {
+		if (sensores.bateria < sensores.vida){
+			return accion;
+		}
+	}
+
+	if (sensores.superficie[2] != '_'){
+		return accion;
+	}
+
+
 	int f=fil_aux,c=col_aux, fil_sens3=fil_aux, col_sens3=col_aux;
 	int fil_aux_mas_tres = f, col_aux_mas_tres = c;
 	
@@ -497,7 +508,7 @@ Action ComportamientoJugador::accionPorDefecto(Sensores sensores){
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-void ComportamientoJugador::switchBrujula (){
+void ComportamientoJugador::switchAccion (){
 	switch (ultimaAccion)
 		{
 			case actFORWARD:
@@ -519,9 +530,11 @@ void ComportamientoJugador::switchBrujula (){
 				brujula = (brujula+1)%4;
 				break;
 		}
+	mapaRecorrido[fil_aux][col_aux] = brujula; //actualizamos la vista de la brujula
 }
 
 void ComportamientoJugador::comprobaciones (Sensores sensores){
+	
 	if (sensores.terreno[0] == 'G' and !bien_situado){
 		fil = sensores.posF;
 		col = sensores.posC;
@@ -715,7 +728,50 @@ void ComportamientoJugador::pintaMapaPotencial(unsigned char c){
 				cout << endl;
 }
 
+void ComportamientoJugador::comprobacionesIniciales(Sensores sensores){
+	if (sensores.nivel > 0 && primeraVez){
+			bien_situado=false;
+			primeraVez = false;
+		} 
 
+	mismo_camino=false;
+	if (sensores.reset){
+		if (bien_situado){
+			fil = sensores.posF;
+			col = sensores.posC;
+			fil_aux = minFilAux+fil;
+			col_aux = minColAux + col;
+
+
+		} else {
+			fil = col = fil_aux = col_aux =  fil_ini_aux = col_ini_aux = fil_ini = col_ini = fila_anterior = columna_anterior= 99;
+
+			fil_bus=5; col_bus=4;
+			minFilAux = minColAux=200;
+			
+			brujula = brujula_interna = 0;
+			ultimaAccion = actIDLE;
+			girar_derecha = true;
+			bien_situado = true;
+			
+			
+			
+			
+			primeraVez= true;
+			num_iteracion= nSalida = 0;
+
+			
+			
+		}
+		mismo_camino = buscaSalida= salida = salida_encontrada = hay_posicionamiento= false;
+		bikini = zapatillas = hay_bikini = hay_zapatillas = hay_bateria =false;
+		segundaVez= true;
+		brujula = brujula_interna = 0;
+		pilaRecorrido = pila_vacia;
+	
+	}
+
+}
 void ComportamientoJugador::actualizaMapaPotencial(int fil_obj, int col_obj){
 	for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)
 	{
@@ -733,28 +789,22 @@ void ComportamientoJugador::actualizaMapaPotencial(int fil_obj, int col_obj){
 }
 Action ComportamientoJugador::think(Sensores sensores){
 
-	if (sensores.nivel > 0 && primeraVez){
-        bien_situado=false;
-		primeraVez = false;
-	} 
+	
+	comprobacionesIniciales(sensores);
 
-	mismo_camino=false;
+
+	
 	Action accion = actIDLE;
 
-	switchBrujula();
-	mapaRecorrido[fil_aux][col_aux] = brujula; //actualizamos la vista de la brujula
+	switchAccion();
+	
 	comprobaciones(sensores);
-	if (sensores.terreno[0] == 'X') {
-		if (sensores.bateria < sensores.vida){
-			accion = actIDLE;
-			ultimaAccion = accion;
-			return accion;
-		}
-	}
+	
 	
 	
 	// DECIDIR NUEVA ACCION
 	
+
 	accion = accionSinNada(sensores);
 	meterEnPila(accion);
 	

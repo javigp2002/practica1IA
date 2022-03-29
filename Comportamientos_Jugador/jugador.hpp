@@ -12,7 +12,7 @@ class ComportamientoJugador : public Comportamiento{
     ComportamientoJugador(unsigned int size) : Comportamiento(size){
       // Constructor de la clase
       // Dar el valor inicial a las variables de estado
-      fil = col = fil_aux = col_aux =  fil_ini_aux = col_ini_aux = fil_ini = col_ini= 99;
+      fil = col = fil_aux = col_aux =  fil_ini_aux = col_ini_aux = fil_ini = col_ini= fila_anterior = columna_anterior= 99;
 
       fil_bus=5; col_bus=4;
       minFilAux = minColAux=200;
@@ -64,8 +64,10 @@ class ComportamientoJugador : public Comportamiento{
 
 
     // para dejar el codigo mas bonito
-    void switchBrujula ();
+    void comprobacionesIniciales(Sensores sensores);
+    void switchAccion ();
     void comprobaciones(Sensores sensores);
+    
     void meterEnPila(Action accion);
 
     // mapaRadial
@@ -90,7 +92,7 @@ class ComportamientoJugador : public Comportamiento{
     bool esInaccesible (Sensores sensores, int num_sensor);
 
   private:
-    int fil, col, brujula, fil_aux, col_aux, minFilAux, minColAux, fil_ini_aux, col_ini_aux, fil_ini, col_ini, brujula_interna;
+    int fil, col, brujula, fil_aux, col_aux, minFilAux, minColAux, fil_ini_aux, col_ini_aux, fil_ini, col_ini, brujula_interna, fila_anterior,columna_anterior;
     Action ultimaAccion, ultAccionBus;
     bool girar_derecha, bien_situado;
     const int MAX_MAPA_AUX=200, SIZE = 100;
