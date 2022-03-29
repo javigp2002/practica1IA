@@ -22,7 +22,7 @@ class ComportamientoJugador : public Comportamiento{
       girar_derecha = true;
       bien_situado = true;
       
-      bikini = zapatillas = hay_bikini = hay_zapatillas =false;
+      bikini = zapatillas = hay_bikini = hay_zapatillas = hay_bateria =false;
       
       mismo_camino = buscaSalida= salida = salida_encontrada = hay_posicionamiento= false;
       primeraVez= segundaVez= true;
@@ -73,6 +73,10 @@ class ComportamientoJugador : public Comportamiento{
     void actualizaMapaRadial(int fil_obj, int col_obj);
     void pintaMapaRadial(unsigned char c);
 
+    void resetMapaPotencial();
+    void actualizaMapaPotencial(int fil_obj, int col_obj);
+    void pintaMapaPotencial(unsigned char c);
+
     Action accionSinNada(Sensores sensores);
     Action accionSinBikini(Sensores sensores);
     Action accionSinZapatillas(Sensores sensores);
@@ -90,22 +94,26 @@ class ComportamientoJugador : public Comportamiento{
     Action ultimaAccion, ultAccionBus;
     bool girar_derecha, bien_situado;
     const int MAX_MAPA_AUX=200, SIZE = 100;
-    bool bikini, zapatillas, hay_bikini, hay_zapatillas, hay_posicionamiento;
+    bool bikini, zapatillas, hay_bikini, hay_zapatillas, hay_posicionamiento, hay_bateria;
     bool salida_bucle, salida_encontrada;
     int iter_bucle=0, iter_mismo=0;
     const int NUM_ITER_SALIDA_BUCLE = 6;
     const int FIL_MATRIZ_RADIAL = 6, COL_MATRIZ_RADIAL=9;
+    const int VAL_MAX_SALIDA = 1000000;
+    const int VAL_MIN_BATERIA = 2000;
+    const int FIL_MATRIZ_POTENCIAL=mapaResultado.size(), COL_MATRIZ_POTENCIAL =mapaResultado.size();
 
     bool cambio_180 = false;
     
     int fil_bus, col_bus;
     int fil_ob, col_ob;
+    int busca_salida=0;
     bool primeraVez, segundaVez;
     vector< vector< unsigned char> > mapaBusqueda;
 
-    stack<Action>  pilaRecorrido;
+    stack<Action>  pilaRecorrido, pila_vacia;
     vector< vector< unsigned char> > mapaAuxiliar;
-    vector< vector< int> > mapaRecorrido, mapaRadial;
+    vector< vector< int> > mapaRecorrido, mapaRadial, mapaPotencial;
     pair<int,int> par_anterior;
 
     bool mismo_camino, buscaSalida, salida;

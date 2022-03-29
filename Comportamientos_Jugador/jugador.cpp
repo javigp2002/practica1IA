@@ -82,7 +82,7 @@ void ComportamientoJugador::ResetMapa(vector< vector< unsigned char> > & mapa){
 void ComportamientoJugador::copiarAuxiliarEnResultado(vector< vector< unsigned char> > & mapaAux, vector< vector< unsigned char> > & mapaRes){
 	int fil_res=0, col_res=0;
 
-	while (mapaResultado[fil_res][col_res] == '?')
+	while (mapaRes[fil_res][col_res] == '?')
 		col_res++;
 	
 	int tamResultado = col_res;
@@ -112,8 +112,11 @@ void SacaMapa(vector< vector< unsigned char> > mapaAux, int fil, int col, int f_
 }
 
 bool ComportamientoJugador::pasoPosible (Sensores sensores, int sen, bool estoy_buscando){
+	
+	bool puedo_pasar = sensores.terreno[sen] != 'M' && sensores.terreno[sen] != 'P' ;
+	
 	if (estoy_buscando){
-		if (sensores.terreno[sen] != 'M' && sensores.terreno[sen] != 'P'){ // dara true si no se sale de la vista
+		if (puedo_pasar){ // dara true si no se sale de la vista
 									// NORTE					NO IR A LA DERECHA DEL BORDE		NO IR A LA IZQUIERDA DEL BORDE			PERMITIR IR HACIA ATRAS
 			
 			
@@ -125,82 +128,124 @@ bool ComportamientoJugador::pasoPosible (Sensores sensores, int sen, bool estoy_
 		}
 	}
 	
+
 	
+
 	if ((bikini && zapatillas) )
-		return sensores.terreno[sen] != 'M' && sensores.terreno[sen] != 'P'; 
+		return puedo_pasar; 
 	else if (zapatillas)
-		return sensores.terreno[sen] != 'M' &&sensores.terreno[sen] != 'A' && sensores.terreno[sen] != 'P';
+		return puedo_pasar &&sensores.terreno[sen] != 'A' ;
 	else if (bikini)
-		return sensores.terreno[sen] != 'M' && sensores.terreno[sen] != 'B' && sensores.terreno[sen] != 'P';
+		return puedo_pasar && sensores.terreno[sen] != 'B';
 	else
-		return sensores.terreno[sen] != 'M' &&sensores.terreno[sen] != 'A'&& sensores.terreno[sen] != 'B'  && sensores.terreno[sen] != 'P';
+		return puedo_pasar &&sensores.terreno[sen] != 'A'&& sensores.terreno[sen] != 'B';
 }
 
 int ComportamientoJugador::encuentraMenor(){
-	int norte,sur,este,oeste,salida, minimo;
+	int norte,sur,este,oeste,salida, minimo, max_fil, max_col, val_max,f,c;
+	vector< vector< int> > mapa;
+
 	norte = sur = este = oeste = 2000;
 
-	if (fil_bus > 0) norte = mapaRadial[fil_bus-1][col_bus];
-	if (fil_bus < FIL_MATRIZ_RADIAL-1) sur = mapaRadial[fil_bus+1][col_bus];
-	if (col_bus > 0) oeste = mapaRadial[fil_bus][col_bus-1];
-	if (col_bus < COL_MATRIZ_RADIAL -1) este = mapaRadial[fil_bus][col_bus+1];
+	bool radial  = (hay_bikini && !bikini) || (hay_zapatillas && !zapatillas) || (hay_posicionamiento && !bien_situado) || hay_bateria;
+	if (radial){
+		norte = sur = este = oeste = 2000;
+		val_max = 500;
+		mapa = mapaRadial;
+		max_fil = FIL_MATRIZ_RADIAL;
+		max_col = COL_MATRIZ_RADIAL;
+		f= fil_bus; c = col_bus;
+	}  else {
+		norte = sur = este = oeste = VAL_MAX_SALIDA;
+		val_max = VAL_MAX_SALIDA-1;
+		mapa = mapaPotencial;
+		max_fil = FIL_MATRIZ_POTENCIAL;
+		max_col = COL_MATRIZ_POTENCIAL;
+		f=fil; c= col;
+	}
+	
+	
+	if (f > 0) norte = mapa[f-1][c];
+	if (f < max_fil-1) sur = mapa[f+1][c];
+	if (c > 0) oeste = mapa[f][c-1];
+	if (c < max_col -1) este = mapa[f][c+1];
  
 	minimo = min( min(norte,sur), min (este,oeste));
 
-	if (minimo > 500)  return 5;
+	if (minimo >= val_max)  return 5;
 
 	if (minimo == norte) salida = 0;
 	else if (minimo == sur) salida = 2;
 	else if (minimo == este ) salida = 1;
 	else salida = 3;
 
-	cout << endl << mapaRadial[fil_bus][col_bus]<<" --> " << norte << " " << este << " " << sur << " " << oeste  << " - " << fil_bus << " " << col_bus<< endl;
+	
 	return salida;
 
 }
 
 Action ComportamientoJugador::buscaObjetoPotencial(Sensores sensores){
 	int min= encuentraMenor();
-	cout<< endl << min << endl;
 	if (min >=4){
 		return accionPorDefecto(sensores);
 	}
+
+	int b;
+	bool radial  = (hay_bikini && !bikini) || (hay_zapatillas && !zapatillas) || (hay_posicionamiento && !bien_situado) || hay_bateria;
+	if (radial){
+		b = brujula_interna;
+	} else
+		b= brujula;
 	
+	
+	// cout<< endl << min << " " << b<< endl;
+
 	Action accion;
 	if (min == 0){
-		if (brujula_interna == 0) accion = actFORWARD;
-		else if (brujula_interna == 1) accion = actTURN_L;
-		else if (brujula_interna == 2) accion = actTURN_R;
+		if (b == 0) accion= actFORWARD; 
+		else if (b == 1) accion = actTURN_L;
+		else if (b == 2) accion = actTURN_R;
 		else accion = actTURN_R; 
 	} else if (min == 1) {
-		if (brujula_interna == 0) accion = actTURN_R;
-		else if (brujula_interna == 1) accion = actFORWARD;
-		else if (brujula_interna == 2) accion = actTURN_L;
+		if (b == 0) accion = actTURN_R;
+		else if (b == 1) accion = actFORWARD;
+		else if (b == 2) accion = actTURN_L;
 		else accion = actTURN_L; 
 	} else if (min == 2){
-		if (brujula_interna == 0) accion = actTURN_R;
-		else if (brujula_interna == 1) accion = actTURN_R;
-		else if (brujula_interna == 2) accion = actFORWARD;
+		if (b == 0) accion = actTURN_R;
+		else if (b == 1) accion = actTURN_R;
+		else if (b == 2) accion = actFORWARD;
 		else accion = actTURN_L; 
 	} else{
-		if (brujula_interna == 0) accion = actTURN_L;
-		else if (brujula_interna == 1) accion = actTURN_R;
-		else if (brujula_interna == 2) accion = actTURN_R;
+		if (b == 0) accion = actTURN_L;
+		else if (b == 1) accion = actTURN_R;
+		else if (b == 2) accion = actTURN_R;
 		else accion = actFORWARD; 
 	}
 
-	if (accion == actFORWARD) {
-		switch (brujula_interna){
-			case 0: fil_bus--; break;
-			case 1: col_bus++; break;
-			case 2: fil_bus++; break;
-			case 3: col_bus--; break;
+	if (!buscaSalida){
+		if (accion == actFORWARD) {
+			mapaRadial[fil_bus][col_bus] = 1000;
+			switch (brujula_interna){
+				case 0: fil_bus--; break;
+				case 1: col_bus++; break;
+				case 2: fil_bus++; break;
+				case 3: col_bus--; break;
+			}
+			
+			
+		} else if (accion == actTURN_L) {
+			brujula_interna=(brujula_interna+3)%4;
+					
+
+		} else {
+			brujula_interna = (brujula_interna+1)%4;
+			
+
 		}
-		
-	} else if (accion == actTURN_L) {
-		brujula_interna=(brujula_interna+3)%4;
-	} else {
-		brujula_interna = (brujula_interna+1)%4;
+	} else{
+		if (accion == actFORWARD)
+			mapaPotencial[fil][col] = VAL_MAX_SALIDA;
 	}
 
 	return accion;
@@ -277,125 +322,125 @@ Action ComportamientoJugador::accionSinNada(Sensores sensores){
 	
 	int sensor;
 	//meter for en metodo
-	bool hay_muro = false;
-	for (int i=0; i<16 && !hay_zapatillas && !hay_bikini; i++) {
-		if ('K'== sensores.terreno[i])
+	bool busca_bateria = false;
+	if (sensores.bateria < VAL_MIN_BATERIA){
+		busca_bateria = true;
+	}
+
+	for (int i=1; i<16 && !hay_zapatillas && !hay_bikini && !hay_posicionamiento && !hay_bateria; i++) {
+		if ('G'== sensores.terreno[i] && !bien_situado)
+			hay_posicionamiento = true;
+		if ('K'== sensores.terreno[i] && !bikini)
 			hay_bikini = true;
-		if ('D'== sensores.terreno[i])
+		if ('D'== sensores.terreno[i] && !zapatillas)
 			hay_zapatillas = true;
 		
-		// hay_muro = 'M' == sensores.terreno[i];
-		// if (hay_muro)
-		// 	hay_bikini = false;
+		if(busca_bateria){
+			if ('X'== sensores.terreno[i]){
+				hay_bateria=true;	
+			}
+		}
+
+		
 	}
 
 	// conocer que vamos a hacer en la siguiente accion
 	switch (brujula){
-		case 0: f--; fil_aux_mas_tres = f-3; fil_sens3--; col_sens3++; break;
-		case 1: c++; col_aux_mas_tres = c+3; col_sens3++; fil_sens3++; break;
-		case 2: f++; fil_aux_mas_tres = f+3; fil_sens3++; col_sens3--; break;
-		case 3: c--; col_aux_mas_tres = c-3; col_sens3--; fil_sens3--; break;
+		case 0: f--; fil_aux_mas_tres = f-3; col_aux_mas_tres = c+3; fil_sens3--; col_sens3++; break;
+		case 1: c++; col_aux_mas_tres = c+3; fil_aux_mas_tres = f+3; col_sens3++; fil_sens3++; break;
+		case 2: f++; fil_aux_mas_tres = f+3; col_aux_mas_tres = c-3; fil_sens3++; col_sens3--; break;
+		case 3: c--; col_aux_mas_tres = c-3; fil_aux_mas_tres = f-3; col_sens3--; fil_sens3--; break;
 	}
 
-	if ((hay_bikini && !bikini) || (hay_zapatillas && !zapatillas) || (hay_posicionamiento && fil == 99)){
-		// cout << "hay bikini"<< endl;
-		// if (hay_posicionamiento && fil == 99){
-		// 	accion = buscaObjeto(sensores,'G');
-		// } else if (hay_bikini && !bikini){
-		// 	accion = buscaObjeto(sensores,'K');
-		// } else
-		// 	accion = buscaObjeto(sensores,'D');
-		cout << "mapaRadial" << endl;
+	if ((hay_bikini && !bikini) || (hay_zapatillas && !zapatillas) || (hay_posicionamiento && !bien_situado) || hay_bateria){
+		busca_salida = salida=false;
+		 cout << "mapaRadial" << endl;
 		if (segundaVez){
 			resetMapaRadial();
-			if (hay_posicionamiento && fil == 99){
+			if (hay_posicionamiento && !bien_situado){
 				pintaMapaRadial('G');
 			} else if (hay_bikini && !bikini){
 				pintaMapaRadial('K');
-			} else
+			} else if (hay_zapatillas && !zapatillas)
 				pintaMapaRadial('D');
+			else
+				pintaMapaRadial('X');
 
 			segundaVez=false;
 		}
 
-			for (size_t i = 0; i < FIL_MATRIZ_RADIAL; i++)		
-			{
-				cout << endl;
-				for (size_t j = 0; j < COL_MATRIZ_RADIAL; j++)
-				{
-					cout << setw (5)<< mapaRadial[i][j] << " ";
-				}
-				
-			}
+		
 		accion = buscaObjetoPotencial(sensores);
 		
 	
 		num_iteracion =0;
 	} else {
+		
+
 		if (buscaSalida){
+			cout << "buscarSalida" << endl;
 
-			cout << "Estoy en Buscar salida - ";
-
-			if (salida){
-				buscaSalida = salida = false;
-				accion = actTURN_R; // Aunque este sea turn r para que sea logico seria meter turn L
-				// cout << "1-" ;
-				pilaRecorrido.push(actTURN_L);
-				salida_encontrada = true;
-
-			}else if(pilaRecorrido.empty()){
-				if (pasoPosible(sensores,2)){
-					accion = actFORWARD;
-					pilaRecorrido.push(accion); // quizas tengo que quitar el movimiento de antes para que se compenetre
-				}else
-					accion = actTURN_R;
-				
-
-				// cout << "Empty" << endl;
-				buscaSalida = salida = false;
-
-				
-				// cout << "2-";
-			} else if (pasoPosible(sensores,2) && mapaRecorrido[f][c] == -1){
-				buscaSalida=false;
-				accion=actFORWARD;
-			
-			
-			}else if (pasoPosible(sensores,3) && mapaRecorrido[fil_sens3][col_sens3] == -1){
-				accion = actFORWARD;
-				salida=true;
-				//pilaRecorrido.push(accion);
-				pilaRecorrido.pop();
-				// cout << "3-";
-			} else {
-				// cambiar el paso dado
-				Action anterior = pilaRecorrido.top();
-				if (anterior == actFORWARD) {
-					accion = actFORWARD;
-				} else if (anterior == actTURN_L) {
-					accion = actTURN_R;
+			if (bien_situado){
+				if (!salida){
+					resetMapaPotencial();
+					pintaMapaPotencial('?');
+				//	cout << endl;
+					salida = true;
+					accion = buscaObjetoPotencial(sensores);
+					pilaRecorrido.pop();
+					if (accion == actFORWARD){
+						pilaRecorrido.push(actTURN_L);pilaRecorrido.push(actTURN_L);
+					} else if (accion == actTURN_L){
+						pilaRecorrido.push(actTURN_R);
+					} else
+						pilaRecorrido.push(actTURN_L);	
 				} else {
-					accion = actTURN_L;
-					
+					accion = buscaObjetoPotencial(sensores);
+
+					pilaRecorrido.push(accion);
+					if (busca_salida>= 19 ){
+						buscaSalida = salida = false;
+						salida_encontrada = true;
+						busca_salida=0;
+					} else
+						busca_salida++;
 				}
-				// cout << "4 - "  ;
+			} else {
+				if(pilaRecorrido.empty()){
+					if (pasoPosible(sensores,2)){
+						accion = actFORWARD;
+						pilaRecorrido.push(accion); // quizas tengo que quitar el movimiento de antes para que se compenetre
+					}else
+						accion = actTURN_R;
+				} else {
+					Action anterior = pilaRecorrido.top();
+					if (anterior == actFORWARD) {
+						accion = actFORWARD;
+					} else if (anterior == actTURN_L) {
+						accion = actTURN_R;
+					} else {
+						accion = actTURN_L;
+						
+					}
+				}
 
-				
-				pilaRecorrido.pop();
-				// cout << pilaRecorrido.size()<< endl;
 
+					
 			}
-
 
 		
 		}else {
+			cout << "defecto"<<endl;
 			accion = accionPorDefecto(sensores);
+			fil_bus=5; col_bus=4;
+			brujula_interna = 0;
 		}
-		fil_bus=5; col_bus=4;
+		
 		segundaVez = true;		
-		brujula_interna = 0;
+		
 		hay_zapatillas = false;
 		hay_bikini=false;
+		hay_bateria = false;
 	} 
 	
 	// cout << " --> "<< pilaRecorrido.size();
@@ -407,18 +452,25 @@ Action ComportamientoJugador::accionSinNada(Sensores sensores){
 Action ComportamientoJugador::accionPorDefecto(Sensores sensores){
 	Action accion;
 	
-	cout << "por defecto" << endl;
-	int f=fil_aux,c=col_aux, fil_sens3=fil_aux, col_sens3=col_aux;
+	//cout << "por defecto" << endl;
+	int f=fil_aux,c=col_aux;
 	int fil_aux_mas_tres = f, col_aux_mas_tres = c;
+	int fil_aux_delante = f, col_aux_delante = c;
+
 	switch (brujula){
-		case 0: f--; fil_aux_mas_tres = f-3; fil_sens3--; col_sens3++; break;
-		case 1: c++; col_aux_mas_tres = c+3; col_sens3++; fil_sens3++; break;
-		case 2: f++; fil_aux_mas_tres = f+3; fil_sens3++; col_sens3--; break;
-		case 3: c--; col_aux_mas_tres = c-3; col_sens3--; fil_sens3--; break;
+		case 0: f--; fil_aux_mas_tres = f-3; fil_aux_delante = fil_aux_mas_tres; col_aux_mas_tres = c+3;  break;
+		case 1: c++; col_aux_mas_tres = c+3; col_aux_delante = col_aux_mas_tres; fil_aux_mas_tres = f+3; break;
+		case 2: f++; fil_aux_mas_tres = f+3; fil_aux_delante = fil_aux_mas_tres; col_aux_mas_tres = c-3;  break;
+		case 3: c--; col_aux_mas_tres = c-3; col_aux_delante = col_aux_mas_tres; fil_aux_mas_tres = f-3;  break;
 	}
 	bool gira= false;
-		if (mapaAuxiliar[fil_aux_mas_tres][col_aux_mas_tres] != '?')
+	bool noSeSaleDeMapa1 = fil_aux_mas_tres >=0 && fil_aux_mas_tres < MAX_MAPA_AUX && col_aux_mas_tres >= 0 && col_aux_mas_tres < MAX_MAPA_AUX;
+	bool noSeSaleDeMapa2 = fil_aux_delante >=0 && fil_aux_delante < MAX_MAPA_AUX && col_aux_delante >= 0 && col_aux_delante < MAX_MAPA_AUX;
+
+		if ((noSeSaleDeMapa1 && mapaAuxiliar[fil_aux_mas_tres][col_aux_mas_tres] != '?') && (noSeSaleDeMapa2 && mapaAuxiliar[fil_aux_delante][col_aux_delante] != '?') )
 			gira = true;
+
+		//if (noSeSaleDeMapa2) cout << mapaAuxiliar[fil_aux_delante][col_aux_delante] << endl;
 		if (pasoPosible(sensores,2) &&  mapaRecorrido[f][c] == -1 && !gira){
 			accion = actFORWARD;
 			num_iteracion=0;
@@ -431,6 +483,7 @@ Action ComportamientoJugador::accionPorDefecto(Sensores sensores){
 
 		if (num_iteracion >= 4){ //ha dado una vuelta completa{
 			buscaSalida=true;
+			salida=false;
 			// elimino las 4 veces q ha dado la vuelta
 			pilaRecorrido.pop();pilaRecorrido.pop();pilaRecorrido.pop();
 
@@ -475,6 +528,7 @@ void ComportamientoJugador::comprobaciones (Sensores sensores){
 		minFilAux = fil_aux - fil;
 		minColAux = col_aux - col;
 		copiarAuxiliarEnResultado(mapaAuxiliar, mapaResultado);
+		hay_posicionamiento = false;
 		
 		bien_situado =true;
 		
@@ -484,9 +538,10 @@ void ComportamientoJugador::comprobaciones (Sensores sensores){
 		brujula=sensores.sentido;
 	}
 
-	if (sensores.terreno[0] == 'D') zapatillas= true;
-	if (sensores.terreno[0] == 'K') bikini= true;
-
+	if (sensores.terreno[0] == 'D'){ zapatillas= true; segundaVez = true;}
+	if (sensores.terreno[0] == 'K'){ bikini= true;segundaVez = true;}
+	if (sensores.terreno[0] == 'X') {hay_bateria = false;segundaVez = true;}
+	
 	if (bien_situado){
 		fil = sensores.posF;
 		col=sensores.posC;
@@ -497,7 +552,7 @@ void ComportamientoJugador::comprobaciones (Sensores sensores){
 		// cout << "actualizando" << endl;
 
 	} 
-			actualizarVistaMapaAuxiliar(sensores);
+	actualizarVistaMapaAuxiliar(sensores);
 
 	
 
@@ -523,8 +578,9 @@ void ComportamientoJugador::resetMapaRadial(){
 }
 
 void ComportamientoJugador::pintaMapaRadial(unsigned char c){
-	int i_auxiliar, j_auxiliar, fil_obj, col_obj; 
+	int i_auxiliar, j_auxiliar, fil_obj = 1, col_obj=7; 
 
+	stack<pair<int,int>> valores; 
 	
 	int valor_defecto_j = j_auxiliar, valor_defecto_i = i_auxiliar;
 	//SacaMapa(mapaAuxiliar,110,130,60,90);
@@ -535,7 +591,7 @@ void ComportamientoJugador::pintaMapaRadial(unsigned char c){
 		} else
 			i_auxiliar = (5-i);
 		
-		cout << endl;
+		//cout << endl;
 		for (size_t j = 0; j < COL_MATRIZ_RADIAL; j++){
 			//cout << fil_aux <<"|"<< col_aux << " --> " <<i_auxiliar << " "<< j_auxiliar << endl;
 			if (brujula == 0 || brujula == 1){
@@ -548,23 +604,25 @@ void ComportamientoJugador::pintaMapaRadial(unsigned char c){
 			else // este oeste --> filas
 				c_actual= mapaAuxiliar[fil_aux+j_auxiliar][col_aux+i_auxiliar];
 			
-			cout << c_actual << " ";
+			// cout << c_actual << " ";
 
 			if (c_actual == c){
-				fil_obj=i;
-				col_obj = j;
+				valores.push({i,j});
+				
 				mapaRadial[i][j] = 0;
+				
 			} else if (c_actual != 'M' && c_actual != 'P' && c_actual != '?')
 				mapaRadial[i][j] = 0;
 			else	
 				mapaRadial[i][j] = 1000;
+			//cout<< mapaRadial[i][j] << " ";
 		}
 
-			cout << endl;
+			//cout << endl;
 		
 	}
 
-
+	
 	actualizaMapaRadial(fil_obj,col_obj);
 	
 }
@@ -586,9 +644,96 @@ void ComportamientoJugador::actualizaMapaRadial(int fil_obj, int col_obj){
 	
 }
 
+
+///////////////////////////////////////////////////////////////////////////
+
+void ComportamientoJugador::resetMapaPotencial(){
+	vector<int> aux_Potencial(COL_MATRIZ_POTENCIAL, VAL_MAX_SALIDA);
+	for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)
+	{
+		mapaPotencial.push_back(aux_Potencial);
+	}
+}
+
+void ComportamientoJugador::pintaMapaPotencial(unsigned char c){
+	int i_auxiliar, j_auxiliar, fil_obj = 1, col_obj=7; 
+
+	stack<pair<int,int>> valores; 
+	
+	for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)
+	{		
+		// cout << endl;
+		for (size_t j = 0; j < COL_MATRIZ_POTENCIAL; j++)
+		{
+			unsigned char c_actual = mapaResultado[i][j];
+			int valor;
+			
+			if (c_actual == c){
+				valores.push({i,j});
+				valor=0;
+			}
+			else if(c_actual != 'M' && c_actual != 'P' ){
+				valor=0;
+			} else
+				valor = VAL_MAX_SALIDA;
+
+			mapaPotencial[i][j] = valor;
+		}
+		
+	}
+	
+		for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)		
+				{
+					cout << endl;
+					for (size_t j = 0; j < COL_MATRIZ_POTENCIAL; j++)
+					{
+						cout << setw (6)<< mapaPotencial[i][j] << " ";
+					}
+					
+				}
+
+
+	cout << endl;
+
+	int siz=valores.size();
+	for (size_t i = 0; i < siz; i++)
+	{
+		actualizaMapaPotencial(valores.top().first,valores.top().second);
+		valores.pop();
+	}
+	
+	
+		for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)		
+				{
+					cout << endl;
+					for (size_t j = 0; j < COL_MATRIZ_POTENCIAL; j++)
+					{
+						cout << setw (6)<< mapaPotencial[i][j] << " ";
+					}
+					
+				}
+				cout << endl;
+}
+
+
+void ComportamientoJugador::actualizaMapaPotencial(int fil_obj, int col_obj){
+	for (size_t i = 0; i < FIL_MATRIZ_POTENCIAL; i++)
+	{
+		for (size_t j = 0; j < COL_MATRIZ_POTENCIAL; j++)
+		{
+			if (!(i == fil_obj && j == col_obj)){
+				int horizontal = i-fil_obj;
+				int vertical  =j-col_obj;
+				mapaPotencial[i][j] += abs(horizontal) + abs(vertical);
+			}
+		}
+		
+	}
+	
+}
 Action ComportamientoJugador::think(Sensores sensores){
 
-	if (sensores.nivel > 0 && !primeraVez){
+	if (sensores.nivel > 0 && primeraVez){
         bien_situado=false;
 		primeraVez = false;
 	} 
@@ -599,6 +744,14 @@ Action ComportamientoJugador::think(Sensores sensores){
 	switchBrujula();
 	mapaRecorrido[fil_aux][col_aux] = brujula; //actualizamos la vista de la brujula
 	comprobaciones(sensores);
+	if (sensores.terreno[0] == 'X') {
+		if (sensores.bateria < sensores.vida){
+			accion = actIDLE;
+			ultimaAccion = accion;
+			return accion;
+		}
+	}
+	
 	
 	// DECIDIR NUEVA ACCION
 	
@@ -606,6 +759,7 @@ Action ComportamientoJugador::think(Sensores sensores){
 	meterEnPila(accion);
 	
 	ultimaAccion =accion;
+
 	
 	
 	

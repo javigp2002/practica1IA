@@ -120,3 +120,88 @@ anotaciones q no han salido
 	// 		}
 	// 	}
 	// }
+
+
+
+
+
+	// if (buscaSalida){
+		// 	bool noSeSaleDeMapa = fil_aux_mas_tres >=0 && fil_aux_mas_tres < MAX_MAPA_AUX && col_aux >= 0 && col_aux < MAX_MAPA_AUX;
+
+		
+		// 	// cout << "Estoy en Buscar salida - ";
+
+		// 	if (salida){
+		// 		cout << "salida" << endl;
+				
+		// 		accion = buscaObjetoPotencial(sensores);
+		// 		//pilaRecorrido = pila_vacia;
+		// 		pilaRecorrido.push(accion);
+		// 		if (busca_salida>= 19 || (fil_bus >= 0 && fil_bus<=2 && col_bus >=6 && col_bus <=8)){
+		// 			buscaSalida = salida = false;
+		// 			salida_encontrada = true;
+		// 			busca_salida=0;
+		// 		} else
+		// 			busca_salida++;
+				
+			
+		// 	}else if(pilaRecorrido.empty()){
+		// 		if (pasoPosible(sensores,2)){
+		// 			accion = actFORWARD;
+		// 			pilaRecorrido.push(accion); // quizas tengo que quitar el movimiento de antes para que se compenetre
+		// 		}else
+		// 			accion = actTURN_R;
+				
+
+		// 		// cout << "Empty" << endl;
+		// 		buscaSalida = salida = false;
+
+				
+		// 		// cout << "2-";
+		// 	} else if (pasoPosible(sensores,2) && mapaRecorrido[f][c] == -1){
+		// 		buscaSalida=false;
+		// 		accion=actFORWARD;
+			
+		// 	}else if (noSeSaleDeMapa && mapaAuxiliar[fil_aux_mas_tres][col_aux_mas_tres] == '?'){
+		// 		// cout << "3-";
+		// 		// brujula_interna = 0;
+		// 		// resetMapaRadial();
+		// 		// pintaMapaRadial('Q');
+				
+		// 		resetMapaPotencial();
+		// 		pintaMapaPotencial('?');
+
+		// 		accion = buscaObjetoPotencial(sensores);
+
+		// 		//accion = actFORWARD;
+		// 		salida=true;
+		// 		//pilaRecorrido.push(accion);
+		// 		pilaRecorrido.pop();
+		// 		if (accion == actFORWARD){
+		// 			pilaRecorrido.push(actTURN_L);pilaRecorrido.push(actTURN_L);
+		// 		} else if (accion == actTURN_L){
+		// 			pilaRecorrido.push(actTURN_R);
+		// 		} else
+		// 			pilaRecorrido.push(actTURN_L);	
+
+
+		// 		// // cout << "3-";)
+		// 	} else {
+		// 		// cout << "4-";
+		// 		// cambiar el paso dado
+		// 		Action anterior = pilaRecorrido.top();
+		// 		if (anterior == actFORWARD) {
+		// 			accion = actFORWARD;
+		// 		} else if (anterior == actTURN_L) {
+		// 			accion = actTURN_R;
+		// 		} else {
+		// 			accion = actTURN_L;
+					
+		// 		}
+		// 		// cout << "4 - "  ;
+
+				
+		// 		pilaRecorrido.pop();
+		// 		// cout << pilaRecorrido.size()<< endl;
+
+		// 	}
