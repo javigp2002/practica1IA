@@ -1,4 +1,8 @@
 {
-    "cmake.configureOnOpen": false
-    "cmake.buildDirectory": "${workspaceFolder}"
+    "cmake.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}",
+    "files.associations": {
+        "ostream": "cpp",
+        "iostream": "cpp"
+    }
 }

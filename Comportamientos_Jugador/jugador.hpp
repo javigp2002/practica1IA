@@ -22,7 +22,7 @@ class ComportamientoJugador : public Comportamiento{
       girar_derecha = true;
       bien_situado = true;
       
-      bikini = zapatillas = hay_bikini = hay_zapatillas = hay_bateria =false;
+      bikini = zapatillas = hay_bikini = hay_zapatillas = hay_bateria = turnL =false;
       
       mismo_camino = buscaSalida= salida = salida_encontrada = hay_posicionamiento= false;
       primeraVez= segundaVez= true;
@@ -41,6 +41,9 @@ class ComportamientoJugador : public Comportamiento{
 
       resetMapaRadial();
       
+      he_reseteado = false;
+
+      pintaPrecipicios();
 
     }
 
@@ -61,29 +64,34 @@ class ComportamientoJugador : public Comportamiento{
 
     void ResetMapa(vector< vector< unsigned char> > & mapa);
     bool pasoPosible (Sensores sensores, int sen, bool estoy_buscando = false);
+    bool pasoMapaNoVisto(Sensores sensores);
 
 
-    // para dejar el codigo mas bonito
+    // para dejar el codigo mas limpio
     void comprobacionesIniciales(Sensores sensores);
     void switchAccion ();
     void comprobaciones(Sensores sensores);
+    void encuentraCasillasImportantes(Sensores sensores, bool busca_bateria);
     
     void meterEnPila(Action accion);
-
+    void pintaPrecipicios();
     // mapaRadial
     void resetMapaRadial();
     void actualizaMapaRadial(int fil_obj, int col_obj);
     void pintaMapaRadial(unsigned char c);
 
+
+    // mapa potencial
     void resetMapaPotencial();
     void actualizaMapaPotencial(int fil_obj, int col_obj);
     void pintaMapaPotencial(unsigned char c);
 
+    // Acciones
     Action accionSinNada(Sensores sensores);
-    Action accionSinBikini(Sensores sensores);
-    Action accionSinZapatillas(Sensores sensores);
-    Action accionBusqueda(Sensores sensores);
-    Action buscaObjeto(Sensores sensores, unsigned char c);
+    Action accionBusquedaCasilla(Sensores sensores);
+    Action accionBuscaSalidaBienSituado(Sensores sensores);
+    Action accionBuscaSalidaMalSituado(Sensores sensores);
+    Action accionMapaPotencial(int min, int b);
 
     Action buscaObjetoPotencial(Sensores sensores);
     int encuentraMenor();
@@ -94,15 +102,16 @@ class ComportamientoJugador : public Comportamiento{
   private:
     int fil, col, brujula, fil_aux, col_aux, minFilAux, minColAux, fil_ini_aux, col_ini_aux, fil_ini, col_ini, brujula_interna, fila_anterior,columna_anterior;
     Action ultimaAccion, ultAccionBus;
-    bool girar_derecha, bien_situado;
+    bool girar_derecha, bien_situado, he_reseteado;
     const int MAX_MAPA_AUX=200, SIZE = 100;
-    bool bikini, zapatillas, hay_bikini, hay_zapatillas, hay_posicionamiento, hay_bateria;
+    bool bikini, zapatillas, hay_bikini, hay_zapatillas, hay_posicionamiento, hay_bateria, turnL;
     bool salida_bucle, salida_encontrada;
     int iter_bucle=0, iter_mismo=0;
     const int NUM_ITER_SALIDA_BUCLE = 6;
     const int FIL_MATRIZ_RADIAL = 6, COL_MATRIZ_RADIAL=9;
     const int VAL_MAX_SALIDA = 1000000;
     const int VAL_MIN_BATERIA = 2000;
+    const int VAL_MAX_BATERIA = 5000;
     const int FIL_MATRIZ_POTENCIAL=mapaResultado.size(), COL_MATRIZ_POTENCIAL =mapaResultado.size();
 
     bool cambio_180 = false;
@@ -119,6 +128,7 @@ class ComportamientoJugador : public Comportamiento{
     pair<int,int> par_anterior;
 
     bool mismo_camino, buscaSalida, salida;
+    bool encerradoCamino = false;
     int num_iteracion, nSalida;
     unsigned char ultimo_giro = '.';
 };
